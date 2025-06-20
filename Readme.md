@@ -9,8 +9,8 @@ digipin-api/
 │   ├── main/
 │   │   ├── java/
 │   │   │   └── com/
-│   │   │       └── indiapost/
-│   │   │           └── digipin/
+│   │   │       └── company/
+│   │   │           └── Digipin/
 │   │   │               ├── DigipinApiApplication.java
 │   │   │               ├── config/
 │   │   │               │   ├── CorsConfig.java
@@ -54,9 +54,9 @@ digipin-api/
 
 2. **Create the Maven structure:**
    ```bash
-   mkdir -p src/main/java/com/indiapost/digipin/{config,controller,exception,model,service}
+   mkdir -p src/main/java/com/company/Digipin/{config,controller,exception,model,service}
    mkdir -p src/main/resources
-   mkdir -p src/test/java/com/indiapost/digipin/service
+   mkdir -p src/test/java/com/company/Digipin/service
    ```
 
 3. **Copy all the provided files to their respective directories according to the project structure above.**

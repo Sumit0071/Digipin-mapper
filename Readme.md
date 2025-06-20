@@ -41,7 +41,7 @@ digipin-api/
 ## Setup Instructions
 
 ### Prerequisites
-- Java 17 or higher
+- Java 21 or higher
 - Maven 3.6 or higher
 
 ### Build and Run

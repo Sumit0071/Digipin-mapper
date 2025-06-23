@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import MapPage from './pages/MapPage';
+import MapPage from './pages/mapPage';
 function App() {
   return (
     <BrowserRouter>

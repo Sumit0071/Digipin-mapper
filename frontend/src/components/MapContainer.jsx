@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import axios from 'axios';
 
 const MAPPLS_KEY = import.meta.env.VITE_MAPPLS_API_KEY;
-
+const BACKEND_URL=import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 const MapContainer = ({
   mapInstance,
   setMapInstance,
@@ -61,7 +61,7 @@ const MapContainer = ({
 
   const encodeAndShow = async (lat, lng, map = mapInstance) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/digipin/encode', {
+      const response = await axios.post(`${BACKEND_URL}/api/digipin/encode`, {
         latitude: lat,
         longitude: lng,
       });

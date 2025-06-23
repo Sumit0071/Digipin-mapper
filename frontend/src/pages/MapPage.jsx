@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import SearchPanel from '../components/SearchPanel';
 import ResultCard from '../components/ResultCard';
 import MapContainer from '../components/MapContainer';
+import { Routefind } from '../components/Routefind';
 const MapPage = () => {
   const [latitude, setLatitude] = useState( '' );
   const [longitude, setLongitude] = useState( '' );
@@ -40,6 +41,7 @@ const MapPage = () => {
         mapInstance={mapInstance}
         markerRef={markerRef}
       />
+      <Routefind />
       {digipin && latitude && longitude && (
         <ResultCard
           digipin={digipin}

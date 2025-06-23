@@ -11,6 +11,7 @@ const SearchPanel = ( {
     mapInstance,
     markerRef,
 } ) => {
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
     const handleSearch = async () => {
         if ( mode === 'coordinates' ) {
             const lat = parseFloat( latitude );
@@ -31,7 +32,7 @@ const SearchPanel = ( {
 
     const encodeAndShow = async ( lat, lng ) => {
         try {
-            const res = await fetch( 'http://localhost:5000/api/digipin/encode', {
+            const res = await fetch( `${BACKEND_URL}/api/digipin/encode`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify( { latitude: lat, longitude: lng } ),
@@ -47,7 +48,7 @@ const SearchPanel = ( {
 
     const decodeAndShow = async ( code ) => {
         try {
-            const res = await fetch( 'http://localhost:5000/api/digipin/decode', {
+            const res = await fetch( `${BACKEND_URL}/api/digipin/decode`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify( { digipin: code } ),

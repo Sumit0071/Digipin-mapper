@@ -3,7 +3,8 @@ import { useEffect } from 'react';
 import axios from 'axios';
 
 const MAPPLS_KEY = import.meta.env.VITE_MAPPLS_API_KEY;
-const BACKEND_URL=import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
 const MapContainer = ({
   mapInstance,
   setMapInstance,
@@ -11,22 +12,34 @@ const MapContainer = ({
   setLongitude,
   setDigipin,
   markerRef,
+  currentLocationRef,
   setError,
 }) => {
   useEffect(() => {
+    let initialized = false;
+
     const loadMapScript = () => {
+      if (window.mappls && window.mappls.Map) {
+        initMap();
+        return;
+      }
+
       const script = document.createElement('script');
-      script.src = `https://apis.mappls.com/advancedmaps/api/${MAPPLS_KEY}/map_sdk?v=3.0&layer=vector`;
+      script.src = `https://apis.mappls.com/advancedmaps/api/${MAPPLS_KEY}/map_sdk?layer=vector&v=3.0`;
       script.async = true;
       script.onload = () => initMap();
       document.body.appendChild(script);
     };
 
     const initMap = () => {
+      if (initialized) return;
+      initialized = true;
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
+
           setLatitude(lat);
           setLongitude(lng);
 
@@ -36,22 +49,39 @@ const MapContainer = ({
             clickableIcons: false,
           });
 
-          map.addListener('click', async (event) => {
-            const lat = event.lngLat.lat;
-            const lng = event.lngLat.lng;
-            setLatitude(lat);
-            setLongitude(lng);
-            await encodeAndShow(lat, lng, map);
-          });
+          map.addListener('load', () => {
+            const currentLocationMarker = new window.mappls.Marker({
+              map,
+              position: { lat, lng },
+              title: 'Your Current Location',
+              draggable: false,
+              popupHtml: `<b>Your Current Location</b><br>Latitude: ${lat}<br>Longitude: ${lng}`,
+              icon: 'https://img.icons8.com/?size=100&id=7880&format=png&color=FA5252',
+            });
 
-          setMapInstance(map);
+            currentLocationRef.current = currentLocationMarker;
+
+            map.addListener('click', async (event) => {
+              const { lat: clickLat, lng: clickLng } = event?.lngLat || {};
+              if (!clickLat || !clickLng) return;
+
+              setLatitude(clickLat);
+              setLongitude(clickLng);
+              await encodeAndShow(clickLat, clickLng, map);
+            });
+
+            setMapInstance(map);
+          });
         },
         () => {
-          const map = new window.mappls.Map('map', {
+          const fallbackMap = new window.mappls.Map('map', {
             center: [28.6139, 77.209],
             zoom: 14,
           });
-          setMapInstance(map);
+
+          fallbackMap.addListener('load', () => {
+            setMapInstance(fallbackMap);
+          });
         }
       );
     };
@@ -61,11 +91,12 @@ const MapContainer = ({
 
   const encodeAndShow = async (lat, lng, map = mapInstance) => {
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/digipin/encode`, {
+      const res = await axios.post(`${BACKEND_URL}/api/digipin/encode`, {
         latitude: lat,
         longitude: lng,
       });
-      const digi = response.data.digipin;
+
+      const digi = res.data.digipin;
       setDigipin(digi);
       setLatitude(lat);
       setLongitude(lng);
@@ -75,14 +106,16 @@ const MapContainer = ({
         markerRef.current = null;
       }
 
-      if (map) {
+      if (map && map.setCenter) {
         map.setCenter({ lat, lng });
+
         const marker = new window.mappls.Marker({
           map,
           position: { lat, lng },
           popupHtml: `<b>Digipin:</b> ${digi}`,
           popupOptions: { open: true },
         });
+
         markerRef.current = marker;
       }
     } catch (err) {
